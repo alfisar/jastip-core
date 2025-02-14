@@ -24,6 +24,6 @@ RUN go build -o /go/bin/jastip-core
 RUN rm -rf /go/src/jastip-core/.git
 RUN rm -rf $HOME/.gitconfig
 
-EXPOSE 8801
+EXPOSE 8802
 
 CMD ["jastip-core"]

@@ -2,9 +2,8 @@ package controller
 
 import (
 	"github.com/alfisar/jastip-import/domain"
-	"github.com/alfisar/jastip-import/helpers/helper"
-	"github.com/alfisar/jastip-import/helpers/response"
 	"github.com/gofiber/fiber/v2"
+	"github.com/valyala/fasthttp"
 )
 
 type simpleController struct {
@@ -16,14 +15,11 @@ func NewSimpleController() *simpleController {
 
 func (c *simpleController) Healthy(ctx *fiber.Ctx) error {
 
-	response.WriteResponse(ctx, response.Response{
-		Status:  "Success",
+	_ = domain.DataPool
+	ctx.Status(fasthttp.StatusOK).JSON(domain.ErrorData{
+		Status:  "success",
 		Code:    0,
-		Message: "Welcome to core jastip api :)",
-		MetaData: response.MetaData{
-			Timestamp: helper.TimeGenerator(),
-			Version:   "v1",
-		},
-	}, domain.ErrorData{}, 200)
+		Message: "Welcome to API Core Justip.in version 1.0, enjoy and chersss :)",
+	})
 	return nil
 }

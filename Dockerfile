@@ -17,6 +17,8 @@ RUN git config --global \
     url."https://${git_username}:${git_token}@github.com/".insteadOf \
     "https://github.com"
 
+RUN go clean -modcache
+
 RUN go get -d -v ./...
 
 RUN go build -o /go/bin/jastip-core

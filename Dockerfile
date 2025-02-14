@@ -18,6 +18,7 @@ RUN git config --global \
     "https://github.com"
 
 RUN go clean -modcache
+RUN export GOPROXY=https://proxy.golang.org
 
 RUN go get -d -v ./...
 

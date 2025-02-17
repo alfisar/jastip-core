@@ -1,0 +1,47 @@
+package controller
+
+import (
+	"jastip-core/application/travel_schedule/service"
+
+	"github.com/alfisar/jastip-import/domain"
+	"github.com/alfisar/jastip-import/helpers/consts"
+	"github.com/alfisar/jastip-import/helpers/response"
+	"github.com/gofiber/fiber/v2"
+)
+
+type travelController struct {
+	serv service.TraveklSchServiceContract
+}
+
+func NewTravelController(serv service.TraveklSchServiceContract) *travelController {
+	return &travelController{
+		serv: serv,
+	}
+}
+
+func (c *travelController) InitPoolData() *domain.Config {
+	poolData := domain.DataPool.Get().(*domain.Config)
+	return poolData
+}
+
+func (c *travelController) AddSchedule(ctx *fiber.Ctx) error {
+	poolData := c.InitPoolData()
+	userID := ctx.Locals("data").(float64)
+	req := ctx.Locals("validatedData").(domain.TravelSchRequest)
+
+	req.UserID = int(userID)
+	id, err := c.serv.AddSchedule(ctx.Context(), poolData, req)
+	if err.Code != 0 {
+		response.WriteResponse(ctx, response.Response{}, err, err.HTTPCode)
+		return nil
+	}
+
+	resps := struct {
+		ID int `json:"id"`
+	}{
+		ID: id,
+	}
+	resp := response.ResponseSuccess(resps, consts.SuccessCreatedData)
+	response.WriteResponse(ctx, resp, err, err.Code)
+	return nil
+}

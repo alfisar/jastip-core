@@ -3,7 +3,7 @@ module jastip-core
 go 1.20
 
 require (
-	github.com/alfisar/jastip-import v0.0.0-20250217065934-09d10f9a4f2c
+	github.com/alfisar/jastip-import v0.0.0-20250221033939-bf534a26aac1
 	github.com/gofiber/fiber/v2 v2.52.6
 	github.com/stretchr/testify v1.10.0
 	github.com/valyala/fasthttp v1.58.0

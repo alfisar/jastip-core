@@ -36,7 +36,7 @@ func (r *travelSchRepository) Create(conn *gorm.DB, data domain.TravelSchRequest
 	return
 }
 
-func (r *travelSchRepository) GetList(conn *gorm.DB, where map[string]any, offet int, limit int) (result []domain.TravelSchResponse, count int64, err error) {
+func (r *travelSchRepository) GetList(conn *gorm.DB, where map[string]any, search string, offet int, limit int) (result []domain.TravelSchResponse, count int64, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf(fmt.Sprintf("%s", r))
@@ -49,7 +49,12 @@ func (r *travelSchRepository) GetList(conn *gorm.DB, where map[string]any, offet
 		return
 	}
 
-	err = conn.Debug().Table("traveler_schedule").Where(where).Count(&count).Offset(offet).Limit(limit).Find(&result).Error
+	if search == "" {
+		err = conn.Debug().Table("traveler_schedule").Where(where).Count(&count).Offset(offet).Limit(limit).Find(&result).Error
+	} else {
+		err = conn.Debug().Table("traveler_schedule").Where(where).Where("locations like ?", "%"+search+"%").Count(&count).Offset(offet).Limit(limit).Find(&result).Error
+	}
+
 	if err != nil {
 		err = fmt.Errorf("get traveler schedule error : %w", err)
 		return

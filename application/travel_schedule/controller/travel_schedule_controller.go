@@ -45,3 +45,18 @@ func (c *travelController) AddSchedule(ctx *fiber.Ctx) error {
 	response.WriteResponse(ctx, resp, err, err.Code)
 	return nil
 }
+
+func (c *travelController) GetListchedule(ctx *fiber.Ctx) error {
+	poolData := c.InitPoolData()
+	params := ctx.Locals("validatedData").(domain.Params)
+
+	totalPage, currentPage, total, result, err := c.serv.GetList(ctx.Context(), poolData, params)
+	if err.Code != 0 {
+		response.WriteResponse(ctx, response.Response{}, err, err.HTTPCode)
+		return nil
+	}
+
+	resp := response.ResponseSuccessWithPaging(result, consts.SuccessGetData, totalPage, int64(currentPage), total)
+	response.WriteResponse(ctx, resp, err, err.Code)
+	return nil
+}

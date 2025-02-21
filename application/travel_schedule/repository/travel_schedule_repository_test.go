@@ -35,7 +35,7 @@ func TestGet(t *testing.T) {
 	where := map[string]interface{}{
 		"status": 1,
 	}
-	result, count, err := repo.GetList(poolData.DBSql, where, 0, 10)
+	result, count, err := repo.GetList(poolData.DBSql, where, "", 0, 10)
 	fmt.Println(result)
 	fmt.Println(count)
 	require.Nil(t, err)
@@ -58,7 +58,7 @@ func TestGetFailed(t *testing.T) {
 	where := map[string]interface{}{
 		"status": 0,
 	}
-	result, _, _ := repo.GetList(poolData.DBSql, where, 0, 10)
+	result, _, _ := repo.GetList(poolData.DBSql, where, "", 0, 10)
 
 	require.Empty(t, result)
 
@@ -100,7 +100,7 @@ func TestGetFailedConn(t *testing.T) {
 		"status": 1,
 	}
 	poolData.DBSql = nil
-	_, _, err := repo.GetList(poolData.DBSql, where, 1, 10)
+	_, _, err := repo.GetList(poolData.DBSql, where, "", 1, 10)
 	require.NotNil(t, err)
 
 }

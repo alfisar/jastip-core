@@ -22,4 +22,5 @@ func NewTravelSchRouter(controller controller.TravelSchControllerContract) *trav
 func (r *travelScheduleRouter) travelSchRouters(v1 fiber.Router) {
 	middleweres := setMiddleware()
 	v1.Post("/schedule", middleweres.Authenticate, middlewere.Validation(handler.HandlerPostSchedule, helper.ValidationPostSchedule), r.controller.AddSchedule)
+	v1.Get("/schedule", middleweres.Authenticate, middlewere.Validation(handler.HandlerParamSch, nil), r.controller.GetListchedule)
 }

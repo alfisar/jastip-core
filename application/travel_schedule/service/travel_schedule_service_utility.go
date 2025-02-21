@@ -7,6 +7,7 @@ import (
 
 	"github.com/alfisar/jastip-import/domain"
 	"github.com/alfisar/jastip-import/helpers/errorhandler"
+	"github.com/alfisar/jastip-import/helpers/handler"
 	"gorm.io/gorm"
 )
 
@@ -44,5 +45,29 @@ func addSchedule(data domain.TravelSchRequest, poolData *domain.Config, repo rep
 			errorhandler.ErrInsertData(nil)
 		}
 	}
+	return
+}
+
+func getList(poolData *domain.Config, param domain.Params, repo repository.TravelSchRepositoryContract) (result []domain.TravelSchResponse, currentPage int, total int64, err domain.ErrorData) {
+	var errData error
+	pages, offset, limit := handler.CalculateOffsetAndLimit(param.Page, param.Limit)
+
+	where := map[string]any{
+		"status": param.Status,
+	}
+
+	result, total, errData = repo.GetList(poolData.DBSql, where, param.Search, offset, limit)
+	if errData != nil {
+		message := fmt.Sprintf("Error Get List data on func getList : %s", errData.Error())
+		log.Println(message)
+
+		if errData.Error() == errorhandler.ErrMsgConnEmpty {
+			err = errorhandler.ErrInternal(errorhandler.ErrCodeConnection, errData)
+		} else {
+			err = errorhandler.ErrGetData(errData)
+		}
+		return
+	}
+	currentPage = pages
 	return
 }

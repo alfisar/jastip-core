@@ -78,7 +78,10 @@ func TestUpdateFailed(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	err := repo.Delete(poolData.DBSql, 1)
+	where := map[string]interface{}{
+		"id": 1,
+	}
+	err := repo.Delete(poolData.DBSql, where)
 	require.Nil(t, err)
 }
 
@@ -121,6 +124,9 @@ func TestUpdateFailedConn(t *testing.T) {
 
 func TestDeleteFailedConn(t *testing.T) {
 	poolData.DBSql = nil
-	err := repo.Delete(poolData.DBSql, 1)
+	where := map[string]interface{}{
+		"id": 1,
+	}
+	err := repo.Delete(poolData.DBSql, where)
 	require.NotNil(t, err)
 }

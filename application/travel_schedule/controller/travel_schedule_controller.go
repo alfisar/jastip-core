@@ -60,3 +60,52 @@ func (c *travelController) GetListchedule(ctx *fiber.Ctx) error {
 	response.WriteResponse(ctx, resp, err, err.Code)
 	return nil
 }
+
+func (c *travelController) Details(ctx *fiber.Ctx) error {
+	poolData := c.InitPoolData()
+	userID := ctx.Locals("data").(float64)
+	id := ctx.Locals("path").(int)
+
+	result, err := c.serv.GetDetails(ctx.Context(), poolData, int(id), int(userID))
+	if err.Code != 0 {
+		response.WriteResponse(ctx, response.Response{}, err, err.HTTPCode)
+		return nil
+	}
+
+	resp := response.ResponseSuccess(result, consts.SuccessGetData)
+	response.WriteResponse(ctx, resp, err, err.Code)
+	return nil
+}
+
+func (c *travelController) Update(ctx *fiber.Ctx) error {
+	poolData := c.InitPoolData()
+	userID := ctx.Locals("data").(float64)
+	id := ctx.Locals("path").(int)
+	updates := ctx.Locals("validatedData").(map[string]any)
+
+	err := c.serv.Update(ctx.Context(), poolData, int(id), int(userID), updates)
+	if err.Code != 0 {
+		response.WriteResponse(ctx, response.Response{}, err, err.HTTPCode)
+		return nil
+	}
+
+	resp := response.ResponseSuccess(nil, consts.SuccessUpdateData)
+	response.WriteResponse(ctx, resp, err, err.Code)
+	return nil
+}
+
+func (c *travelController) Delete(ctx *fiber.Ctx) error {
+	poolData := c.InitPoolData()
+	userID := ctx.Locals("data").(float64)
+	id := ctx.Locals("path").(int)
+
+	err := c.serv.Delete(ctx.Context(), poolData, int(id), int(userID))
+	if err.Code != 0 {
+		response.WriteResponse(ctx, response.Response{}, err, err.HTTPCode)
+		return nil
+	}
+
+	resp := response.ResponseSuccess(nil, consts.SuccessGetData)
+	response.WriteResponse(ctx, resp, err, err.Code)
+	return nil
+}

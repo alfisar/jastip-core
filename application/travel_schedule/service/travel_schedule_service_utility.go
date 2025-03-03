@@ -32,6 +32,29 @@ func validatedTravelTime(poolData *domain.Config, userID int, locations string, 
 	return
 }
 
+func validatedUpdateTravelTime(poolData *domain.Config, id int, userID int, locations string, startDate string, endDate string, repo repository.TravelSchRepositoryContract) (err domain.ErrorData) {
+	result, errData := repo.GetByTimeBetween(poolData.DBSql, userID, locations, startDate, endDate)
+	if errData != nil {
+		message := fmt.Sprintf("Error validate data on func validatedTravelTime : %s", errData.Error())
+		log.Println(message)
+
+		if errData.Error() == errorhandler.ErrMsgConnEmpty {
+			err = errorhandler.ErrInternal(errorhandler.ErrCodeConnection, errData)
+		} else if errData.Error() != "get traveler schedule error : "+gorm.ErrRecordNotFound.Error() {
+			err = errorhandler.ErrGetData(errData)
+		}
+
+	} else if result.ID != 0 {
+		if result.ID != id {
+			message := fmt.Sprintf("Error validate data on func validatedTravelTime : Schedule sudah ada!!")
+			log.Println(message)
+			err = errorhandler.ErrValidation(fmt.Errorf(message))
+		}
+
+	}
+	return
+}
+
 func addSchedule(data domain.TravelSchRequest, poolData *domain.Config, repo repository.TravelSchRepositoryContract) (id int, err domain.ErrorData) {
 	var errData error
 	id, errData = repo.Create(poolData.DBSql, data)
@@ -69,5 +92,86 @@ func getList(poolData *domain.Config, param domain.Params, repo repository.Trave
 		return
 	}
 	currentPage = pages
+	return
+}
+
+func getDetail(poolData *domain.Config, repo repository.TravelSchRepositoryContract, id int, userID int) (result domain.TravelSchResponse, err domain.ErrorData) {
+	var errData error
+
+	where := map[string]any{
+		"id":      id,
+		"user_id": userID,
+	}
+
+	result, errData = repo.GetDetail(poolData.DBSql, where)
+	if errData != nil {
+		message := fmt.Sprintf("Error get detail data on func getDetail : %s", errData.Error())
+		log.Println(message)
+
+		if errData.Error() == errorhandler.ErrMsgConnEmpty {
+			err = errorhandler.ErrInternal(errorhandler.ErrCodeConnection, errData)
+		} else {
+			errorhandler.ErrGetData(nil)
+		}
+	}
+
+	return
+}
+
+func updateSchedule(poolData *domain.Config, repo repository.TravelSchRepositoryContract, id int, updates map[string]any) (err domain.ErrorData) {
+	where := map[string]any{
+		"id": id,
+	}
+	errData := repo.Update(poolData.DBSql, where, updates)
+	if errData != nil {
+		message := fmt.Sprintf("Error update data on func updateSchedule : %s", errData.Error())
+		log.Println(message)
+
+		if errData.Error() == errorhandler.ErrMsgConnEmpty {
+			err = errorhandler.ErrInternal(errorhandler.ErrCodeConnection, errData)
+		} else {
+			errorhandler.ErrUpdateData(nil)
+		}
+	}
+
+	return
+}
+
+func deleteSchedule(poolData *domain.Config, repo repository.TravelSchRepositoryContract, id int, userID int) (err domain.ErrorData) {
+
+	where := map[string]any{
+		"id":      id,
+		"user_id": userID,
+	}
+
+	errData := repo.Delete(poolData.DBSql, where)
+	if errData != nil {
+		message := fmt.Sprintf("Error delete data on func deleteSchedule : %s", errData.Error())
+		log.Println(message)
+
+		if errData.Error() == errorhandler.ErrMsgConnEmpty {
+			err = errorhandler.ErrInternal(errorhandler.ErrCodeConnection, errData)
+		} else {
+			errorhandler.ErrUpdateData(nil)
+		}
+	}
+
+	return
+}
+
+func mappingDataUpdate(data domain.TravelSchResponse, updates map[string]any) (result domain.TravelSchResponse) {
+	if v, exist := updates["location"]; exist {
+		data.Location = v.(string)
+	}
+
+	if v, exist := updates["period_start"]; exist {
+		data.PeriodStart = v.(string)
+	}
+
+	if v, exist := updates["period_end"]; exist {
+		data.PeriodEnd = v.(string)
+	}
+
+	result = data
 	return
 }

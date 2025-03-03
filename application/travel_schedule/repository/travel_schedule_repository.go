@@ -62,6 +62,28 @@ func (r *travelSchRepository) GetList(conn *gorm.DB, where map[string]any, searc
 	return
 }
 
+func (r *travelSchRepository) GetDetail(conn *gorm.DB, where map[string]any) (result domain.TravelSchResponse, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf(fmt.Sprintf("%s", r))
+		}
+
+	}()
+
+	if conn == nil {
+		err = fmt.Errorf(errorhandler.ErrMsgConnEmpty)
+		return
+	}
+
+	err = conn.Debug().Table("traveler_schedule").Where(where).First(&result).Error
+
+	if err != nil {
+		err = fmt.Errorf("get traveler schedule error : %w", err)
+		return
+	}
+	return
+}
+
 func (r *travelSchRepository) GetByTimeBetween(conn *gorm.DB, id int, locations string, startDate string, endDate string) (result domain.TravelSchResponse, err error) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -107,7 +129,7 @@ func (r *travelSchRepository) Update(conn *gorm.DB, where map[string]any, update
 	return
 }
 
-func (r *travelSchRepository) Delete(conn *gorm.DB, ID int) (err error) {
+func (r *travelSchRepository) Delete(conn *gorm.DB, where map[string]any) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf(fmt.Sprintf("%s", r))
@@ -120,7 +142,7 @@ func (r *travelSchRepository) Delete(conn *gorm.DB, ID int) (err error) {
 		return
 	}
 
-	err = conn.Debug().Table("traveler_schedule").Where("id = ?", ID).Delete(domain.TravelSchRequest{}).Error
+	err = conn.Debug().Table("traveler_schedule").Where(where).Delete(domain.TravelSchRequest{}).Error
 	if err != nil {
 		err = fmt.Errorf("Delete travel schedule error : %w", err)
 

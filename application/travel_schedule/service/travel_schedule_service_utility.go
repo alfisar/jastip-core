@@ -107,7 +107,7 @@ func addSchedule(data domain.TravelSchRequest, poolData *domain.Config, repo rep
 		if errData.Error() == errorhandler.ErrMsgConnEmpty {
 			err = errorhandler.ErrInternal(errorhandler.ErrCodeConnection, errData)
 		} else {
-			errorhandler.ErrInsertData(nil)
+			errorhandler.ErrInsertData(fmt.Errorf(message))
 		}
 	}
 	return
@@ -153,7 +153,7 @@ func getDetail(poolData *domain.Config, repo repository.TravelSchRepositoryContr
 		if errData.Error() == errorhandler.ErrMsgConnEmpty {
 			err = errorhandler.ErrInternal(errorhandler.ErrCodeConnection, errData)
 		} else {
-			errorhandler.ErrGetData(nil)
+			errorhandler.ErrGetData(fmt.Errorf(message))
 		}
 	}
 
@@ -172,7 +172,7 @@ func updateSchedule(poolData *domain.Config, repo repository.TravelSchRepository
 		if errData.Error() == errorhandler.ErrMsgConnEmpty {
 			err = errorhandler.ErrInternal(errorhandler.ErrCodeConnection, errData)
 		} else {
-			errorhandler.ErrUpdateData(nil)
+			errorhandler.ErrUpdateData(fmt.Errorf(message))
 		}
 	}
 
@@ -194,7 +194,7 @@ func deleteSchedule(poolData *domain.Config, repo repository.TravelSchRepository
 		if errData.Error() == errorhandler.ErrMsgConnEmpty {
 			err = errorhandler.ErrInternal(errorhandler.ErrCodeConnection, errData)
 		} else {
-			errorhandler.ErrUpdateData(nil)
+			errorhandler.ErrUpdateData(fmt.Errorf(message))
 		}
 	}
 

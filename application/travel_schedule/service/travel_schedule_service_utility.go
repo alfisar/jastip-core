@@ -8,6 +8,8 @@ import (
 	"github.com/alfisar/jastip-import/domain"
 	"github.com/alfisar/jastip-import/helpers/errorhandler"
 	"github.com/alfisar/jastip-import/helpers/handler"
+	"github.com/alfisar/jastip-import/helpers/helper"
+
 	"gorm.io/gorm"
 )
 
@@ -28,6 +30,26 @@ func validatedTravelTime(poolData *domain.Config, userID int, locations string, 
 		log.Println(message)
 		err = errorhandler.ErrValidation(fmt.Errorf(message))
 
+	}
+
+	startDates, errData := helper.GenerateDateTime(startDate)
+	if errData != nil {
+		message := fmt.Sprintf("Error validate data on func validatedTravelTime : %s", errData.Error())
+		log.Println(message)
+		err = errorhandler.ErrValidation(fmt.Errorf(message))
+	}
+
+	endDates, errData := helper.GenerateDateTime(endDate)
+	if errData != nil {
+		message := fmt.Sprintf("Error validate data on func validatedTravelTime : %s", errData.Error())
+		log.Println(message)
+		err = errorhandler.ErrValidation(fmt.Errorf(message))
+	}
+
+	if endDates.Before(startDates) {
+		message := fmt.Sprintf("Error validate data on func validatedTravelTime : End Dates tidak boleh lebih kecil dari start date ")
+		log.Println(message)
+		err = errorhandler.ErrValidation(fmt.Errorf(message))
 	}
 	return
 }
@@ -51,6 +73,26 @@ func validatedUpdateTravelTime(poolData *domain.Config, id int, userID int, loca
 			err = errorhandler.ErrValidation(fmt.Errorf(message))
 		}
 
+	}
+
+	startDates, errData := helper.GenerateDateTime(startDate)
+	if errData != nil {
+		message := fmt.Sprintf("Error validate data on func validatedTravelTime : %s", errData.Error())
+		log.Println(message)
+		err = errorhandler.ErrValidation(fmt.Errorf(message))
+	}
+
+	endDates, errData := helper.GenerateDateTime(endDate)
+	if errData != nil {
+		message := fmt.Sprintf("Error validate data on func validatedTravelTime : %s", errData.Error())
+		log.Println(message)
+		err = errorhandler.ErrValidation(fmt.Errorf(message))
+	}
+
+	if endDates.Before(startDates) {
+		message := fmt.Sprintf("Error validate data on func validatedTravelTime : End Dates tidak boleh lebih kecil dari start date ")
+		log.Println(message)
+		err = errorhandler.ErrValidation(fmt.Errorf(message))
 	}
 	return
 }

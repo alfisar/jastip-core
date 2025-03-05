@@ -153,7 +153,7 @@ func getDetail(poolData *domain.Config, repo repository.TravelSchRepositoryContr
 		if errData.Error() == errorhandler.ErrMsgConnEmpty {
 			err = errorhandler.ErrInternal(errorhandler.ErrCodeConnection, errData)
 		} else {
-			errorhandler.ErrGetData(fmt.Errorf(message))
+			err = errorhandler.ErrGetData(fmt.Errorf(message))
 		}
 	}
 

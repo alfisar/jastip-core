@@ -1,7 +1,7 @@
 package router
 
 import (
-	"jastip-core/application/simple/controller"
+	simpleControll "jastip-core/application/simple/controller/http"
 	travelControll "jastip-core/application/travel_schedule/controller"
 	"jastip-core/application/travel_schedule/repository"
 	"jastip-core/application/travel_schedule/service"
@@ -12,7 +12,7 @@ import (
 )
 
 func SimpleInit() *simpleRouter {
-	controll := controller.NewSimpleController()
+	controll := simpleControll.NewSimpleController()
 
 	return NewSimpleRouter(controll)
 }

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package core;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "/proto;corepb";
+
+service CheckHealthy {
+    rpc CheckRunning(google.protobuf.Empty) returns (Healthy);
+}
+
+message Healthy {
+    string message = 1;
+}

@@ -2,7 +2,8 @@ package router
 
 import (
 	simpleControll "jastip-core/application/simple/controller/tcp"
-	corepb "jastip-core/proto"
+
+	corepb "github.com/alfisar/jastip-import/proto/core"
 
 	"google.golang.org/grpc"
 )

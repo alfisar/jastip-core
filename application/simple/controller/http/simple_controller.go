@@ -1,7 +1,8 @@
 package http
 
 import (
-	pb "jastip-core/proto"
+	authpb "github.com/alfisar/jastip-import/proto/auth"
+	pb "github.com/alfisar/jastip-import/proto/core"
 
 	"github.com/alfisar/jastip-import/domain"
 	"github.com/alfisar/jastip-import/helpers/errorhandler"
@@ -42,6 +43,33 @@ func (c *simpleController) HealthyGRPC(ctx *fiber.Ctx) error {
 
 	defer conn.Close()
 	grpcClient := pb.NewCheckHealthyClient(conn)
+
+	res, err := grpcClient.CheckRunning(ctx.Context(), &emptypb.Empty{})
+	if err != nil {
+		return ctx.Status(500).SendString("gRPC error: " + err.Error())
+	}
+	ctx.Status(fasthttp.StatusOK).JSON(domain.ErrorData{
+		Status:  "success",
+		Code:    0,
+		Message: res.Message,
+	})
+	return nil
+
+}
+
+func (c *simpleController) CheckGRPCAuth(ctx *fiber.Ctx) error {
+	conn, err := grpc.Dial("localhost:50052", grpc.WithInsecure())
+	if err != nil {
+		ctx.Status(fasthttp.StatusInternalServerError).JSON(domain.ErrorData{
+			Status:  "error",
+			Code:    errorhandler.ErrCodeInternalServer,
+			Message: "Cannot connect GRPC",
+			Errors:  err.Error(),
+		})
+	}
+
+	defer conn.Close()
+	grpcClient := authpb.NewSimpleClient(conn)
 
 	res, err := grpcClient.CheckRunning(ctx.Context(), &emptypb.Empty{})
 	if err != nil {

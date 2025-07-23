@@ -2,7 +2,8 @@ package tcp
 
 import (
 	"context"
-	corepb "jastip-core/proto"
+
+	corepb "github.com/alfisar/jastip-import/proto/core"
 
 	"google.golang.org/protobuf/types/known/emptypb"
 )

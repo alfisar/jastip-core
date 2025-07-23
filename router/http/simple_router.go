@@ -19,4 +19,5 @@ func NewSimpleRouter(Controller simpleControll.SimpleControllerContract) *simple
 func (r *simpleRouter) simpleRouters(v1 fiber.Router) {
 	v1.Get("", r.Controller.Healthy)
 	v1.Get("/grpc", r.Controller.HealthyGRPC)
+	v1.Get("/grpc/auth", r.Controller.CheckGRPCAuth)
 }

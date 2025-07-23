@@ -1,7 +1,7 @@
 package router
 
 import (
-	"jastip-core/application/travel_schedule/controller"
+	controller "jastip-core/application/travel_schedule/controller/http"
 
 	"github.com/alfisar/jastip-import/helpers/handler"
 	"github.com/alfisar/jastip-import/helpers/helper"

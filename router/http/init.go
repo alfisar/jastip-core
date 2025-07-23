@@ -1,10 +1,14 @@
 package router
 
 import (
+	countriesControll "jastip-core/application/countries/controller/http"
 	simpleControll "jastip-core/application/simple/controller/http"
-	travelControll "jastip-core/application/travel_schedule/controller"
-	"jastip-core/application/travel_schedule/repository"
-	"jastip-core/application/travel_schedule/service"
+	travelControll "jastip-core/application/travel_schedule/controller/http"
+
+	countriesRepo "jastip-core/application/countries/repository"
+	countriesServ "jastip-core/application/countries/service"
+	travelRepo "jastip-core/application/travel_schedule/repository"
+	travelServ "jastip-core/application/travel_schedule/service"
 	"os"
 
 	"github.com/alfisar/jastip-import/helpers/jwthandler"
@@ -18,11 +22,19 @@ func SimpleInit() *simpleRouter {
 }
 
 func TravelSchInit() *travelScheduleRouter {
-	repo := repository.NewTravelSchRepository()
-	serv := service.NewTravelSchService(repo)
+	repo := travelRepo.NewTravelSchRepository()
+	serv := travelServ.NewTravelSchService(repo)
 
 	controll := travelControll.NewTravelController(serv)
 	return NewTravelSchRouter(controll)
+}
+
+func CountriesInit() *countriesRouter {
+	repo := countriesRepo.NewCountriesRepository()
+	serv := countriesServ.NewCountriesService(repo)
+
+	controll := countriesControll.NewCountriesController(serv)
+	return NewCountriesRouter(controll)
 }
 
 func setMiddleware() *middlewere.AuthenticateMiddleware {

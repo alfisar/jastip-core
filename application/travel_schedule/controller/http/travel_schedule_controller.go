@@ -1,4 +1,4 @@
-package controller
+package http
 
 import (
 	"jastip-core/application/travel_schedule/service"

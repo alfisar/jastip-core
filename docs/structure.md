@@ -1,7 +1,5 @@
 .
 ├── Dockerfile
-├── Format 1 (tree-like):
-├── app
 ├── application
 │   ├── countries
 │   │   ├── controller
@@ -37,22 +35,22 @@
 │           ├── travel_schedule_service.go
 │           ├── travel_schedule_service_contract.go
 │           └── travel_schedule_service_utility.go
-├── components
+├── docs
+│   ├── architecture-diagram.png
+│   └── structure.md
 ├── go.mod
 ├── go.sum
 ├── main.go
-├── router
-│   ├── http
-│   │   ├── countries_router.go
-│   │   ├── init.go
-│   │   ├── router.go
-│   │   ├── simple_router.go
-│   │   └── travel_schedule_router.go
-│   └── tcp
-│       ├── init.go
-│       ├── router.go
-│       └── simple_router.go
-├── src
-└── structure.md
+└── router
+    ├── http
+    │   ├── countries_router.go
+    │   ├── init.go
+    │   ├── router.go
+    │   ├── simple_router.go
+    │   └── travel_schedule_router.go
+    └── tcp
+        ├── init.go
+        ├── router.go
+        └── simple_router.go
 
-24 directories, 32 files
+21 directories, 34 files

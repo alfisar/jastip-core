@@ -50,9 +50,9 @@ func (r *travelSchRepository) GetList(conn *gorm.DB, where map[string]any, searc
 	}
 
 	if search == "" {
-		err = conn.Debug().Table("traveler_schedule").Where(where).Count(&count).Offset(offet).Limit(limit).Find(&result).Error
+		err = conn.Debug().Table("traveler_schedule").Select("traveler_schedule.* , countries.name as locations").Joins("JOIN countries ON countries.id = traveler_schedule.locations").Where(where).Count(&count).Offset(offet).Limit(limit).Find(&result).Error
 	} else {
-		err = conn.Debug().Table("traveler_schedule").Where(where).Where("locations like ?", "%"+search+"%").Count(&count).Offset(offet).Limit(limit).Find(&result).Error
+		err = conn.Debug().Table("traveler_schedule").Select("traveler_schedule.* , countries.name as locations").Joins("JOIN countries ON countries.id = traveler_schedule.locations").Where(where).Where("locations like ?", "%"+search+"%").Count(&count).Offset(offet).Limit(limit).Find(&result).Error
 	}
 
 	if err != nil {
@@ -75,7 +75,7 @@ func (r *travelSchRepository) GetDetail(conn *gorm.DB, where map[string]any) (re
 		return
 	}
 
-	err = conn.Debug().Table("traveler_schedule").Where(where).First(&result).Error
+	err = conn.Debug().Table("traveler_schedule").Select("traveler_schedule.* , countries.name as locations").Joins("JOIN countries ON countries.id = traveler_schedule.locations").Where(where).First(&result).Error
 
 	if err != nil {
 		err = fmt.Errorf("get traveler schedule error : %w", err)
@@ -84,7 +84,7 @@ func (r *travelSchRepository) GetDetail(conn *gorm.DB, where map[string]any) (re
 	return
 }
 
-func (r *travelSchRepository) GetByTimeBetween(conn *gorm.DB, id int, locations string, startDate string, endDate string) (result domain.TravelSchResponse, err error) {
+func (r *travelSchRepository) GetByTimeBetween(conn *gorm.DB, id int, startDate string, endDate string) (result domain.TravelSchResponse, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf(fmt.Sprintf("%s", r))
@@ -97,7 +97,7 @@ func (r *travelSchRepository) GetByTimeBetween(conn *gorm.DB, id int, locations 
 		return
 	}
 
-	err = conn.Debug().Table("traveler_schedule").Where("user_id = ? AND status = 1 and locations = ?", id, locations).Where("(period_start BETWEEN ? AND ?) OR (period_end BETWEEN ? AND ?)", startDate, endDate, startDate, endDate).First(&result).Error
+	err = conn.Debug().Table("traveler_schedule").Where("user_id = ? AND status = 1", id).Where("(period_start BETWEEN ? AND ?) OR (period_end BETWEEN ? AND ?)", startDate, endDate, startDate, endDate).First(&result).Error
 	if err != nil {
 		err = fmt.Errorf("get traveler schedule error : %w", err)
 		return

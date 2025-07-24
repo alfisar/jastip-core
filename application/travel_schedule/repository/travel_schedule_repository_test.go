@@ -21,7 +21,7 @@ func TestInsert(t *testing.T) {
 	poolData = domain.DataPool.Get().(*domain.Config)
 	data := domain.TravelSchRequest{
 		UserID:      1,
-		Location:    "Indonesia",
+		Location:    1,
 		PeriodStart: "2025-02-14",
 		PeriodEnd:   "2025-02-20",
 		Status:      1,
@@ -88,7 +88,7 @@ func TestDelete(t *testing.T) {
 func TestInsertFailed(t *testing.T) {
 	data := domain.TravelSchRequest{
 		UserID:      10,
-		Location:    "Indonesia",
+		Location:    1,
 		PeriodStart: "2025-14-02",
 		PeriodEnd:   "2025-20-02",
 		Status:      1,

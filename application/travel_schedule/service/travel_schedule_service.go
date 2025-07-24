@@ -2,27 +2,57 @@ package service
 
 import (
 	"context"
+	repoCountries "jastip-core/application/countries/repository"
 	"jastip-core/application/travel_schedule/repository"
+	"sync"
 
 	"github.com/alfisar/jastip-import/domain"
 	"github.com/alfisar/jastip-import/helpers/handler"
 )
 
 type travelSchService struct {
-	repo repository.TravelSchRepositoryContract
+	repo          repository.TravelSchRepositoryContract
+	repoCountries repoCountries.CountriesRepositoryContract
 }
 
-func NewTravelSchService(repo repository.TravelSchRepositoryContract) *travelSchService {
+func NewTravelSchService(repo repository.TravelSchRepositoryContract, repoCountries repoCountries.CountriesRepositoryContract) *travelSchService {
 	return &travelSchService{
-		repo: repo,
+		repo:          repo,
+		repoCountries: repoCountries,
 	}
 }
 
 func (s *travelSchService) AddSchedule(ctx context.Context, poolData *domain.Config, data domain.TravelSchRequest) (id int, err domain.ErrorData) {
-	err = validatedTravelTime(poolData, data.UserID, data.Location, data.PeriodStart, data.PeriodEnd, s.repo)
-	if err.Code != 0 {
+	var wg sync.WaitGroup
+
+	errChan := make(chan domain.ErrorData, 2)
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		err = validatedTravelTime(poolData, data.UserID, data.PeriodStart, data.PeriodEnd, s.repo)
+		if err.Code != 0 {
+			errChan <- err
+			return
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		err = validateCountries(poolData, data.Location, s.repoCountries)
+		if err.Code != 0 {
+			errChan <- err
+			return
+		}
+	}()
+
+	wg.Wait()
+	close(errChan)
+	for v := range errChan {
+		err = v
 		return
 	}
+
 	data.Status = 1
 	id, err = addSchedule(data, poolData, s.repo)
 	return
@@ -51,7 +81,7 @@ func (s *travelSchService) Update(ctx context.Context, poolData *domain.Config, 
 	}
 
 	dataMapping := mappingDataUpdate(details, update)
-	err = validatedUpdateTravelTime(poolData, id, userID, dataMapping.Location, dataMapping.PeriodStart, dataMapping.PeriodEnd, s.repo)
+	err = validatedUpdateTravelTime(poolData, id, userID, dataMapping.PeriodStart, dataMapping.PeriodEnd, s.repo)
 	if err.Code != 0 {
 		return
 	}

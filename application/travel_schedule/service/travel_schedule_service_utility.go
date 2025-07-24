@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	repoCountries "jastip-core/application/countries/repository"
 	"jastip-core/application/travel_schedule/repository"
 	"log"
 
@@ -13,8 +14,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func validatedTravelTime(poolData *domain.Config, userID int, locations string, startDate string, endDate string, repo repository.TravelSchRepositoryContract) (err domain.ErrorData) {
-	result, errData := repo.GetByTimeBetween(poolData.DBSql, userID, locations, startDate, endDate)
+func validatedTravelTime(poolData *domain.Config, userID int, startDate string, endDate string, repo repository.TravelSchRepositoryContract) (err domain.ErrorData) {
+	result, errData := repo.GetByTimeBetween(poolData.DBSql, userID, startDate, endDate)
 	if errData != nil {
 		message := fmt.Sprintf("Error validate data on func validatedTravelTime : %s", errData.Error())
 		log.Println(message)
@@ -54,8 +55,8 @@ func validatedTravelTime(poolData *domain.Config, userID int, locations string, 
 	return
 }
 
-func validatedUpdateTravelTime(poolData *domain.Config, id int, userID int, locations string, startDate string, endDate string, repo repository.TravelSchRepositoryContract) (err domain.ErrorData) {
-	result, errData := repo.GetByTimeBetween(poolData.DBSql, userID, locations, startDate, endDate)
+func validatedUpdateTravelTime(poolData *domain.Config, id int, userID int, startDate string, endDate string, repo repository.TravelSchRepositoryContract) (err domain.ErrorData) {
+	result, errData := repo.GetByTimeBetween(poolData.DBSql, userID, startDate, endDate)
 	if errData != nil {
 		message := fmt.Sprintf("Error validate data on func validatedTravelTime : %s", errData.Error())
 		log.Println(message)
@@ -93,6 +94,25 @@ func validatedUpdateTravelTime(poolData *domain.Config, id int, userID int, loca
 		message := fmt.Sprintf("Error validate data on func validatedTravelTime : End Dates tidak boleh lebih kecil dari start date ")
 		log.Println(message)
 		err = errorhandler.ErrValidation(fmt.Errorf(message))
+	}
+	return
+}
+
+func validateCountries(poolData *domain.Config, countriesID int, repo repoCountries.CountriesRepositoryContract) (err domain.ErrorData) {
+	where := map[string]any{
+		"id": countriesID,
+	}
+	_, errData := repo.Get(poolData.DBSql, where)
+	if errData != nil {
+		message := fmt.Sprintf("Error validate data countries on func validateCountries : %s", errData.Error())
+		log.Println(message)
+
+		if errData.Error() == errorhandler.ErrMsgConnEmpty {
+			err = errorhandler.ErrInternal(errorhandler.ErrCodeConnection, errData)
+		} else if errData.Error() != "get one countries data error : "+gorm.ErrRecordNotFound.Error() {
+			err = errorhandler.ErrGetData(errData)
+		}
+
 	}
 	return
 }

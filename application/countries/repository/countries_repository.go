@@ -63,3 +63,25 @@ func (r *countriesRepository) Gets(conn *gorm.DB, page int, limit int, where map
 
 	return
 }
+
+func (r *countriesRepository) Get(conn *gorm.DB, where map[string]any) (result domain.Countries, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf(fmt.Sprintf("%s", r))
+		}
+
+	}()
+
+	if conn == nil {
+		err = fmt.Errorf(errorhandler.ErrMsgConnEmpty)
+		return
+	}
+
+	err = conn.Debug().Table("countries").Where(where).First(&result).Error
+	if err != nil {
+		err = fmt.Errorf("get one countries data error : %w", err)
+
+		return
+	}
+	return
+}

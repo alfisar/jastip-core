@@ -22,8 +22,9 @@ func SimpleInit() *simpleRouter {
 }
 
 func TravelSchInit() *travelScheduleRouter {
+	repoContries := countriesRepo.NewCountriesRepository()
 	repo := travelRepo.NewTravelSchRepository()
-	serv := travelServ.NewTravelSchService(repo)
+	serv := travelServ.NewTravelSchService(repo, repoContries)
 
 	controll := travelControll.NewTravelController(serv)
 	return NewTravelSchRouter(controll)

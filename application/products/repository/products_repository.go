@@ -99,7 +99,7 @@ func (r *productsRepository) Update(conn *gorm.DB, update map[string]any, where 
 		return
 	}
 
-	err = conn.Debug().Table("products").Updates(&update).Where(where).Error
+	err = conn.Debug().Table("products").Where(where).Updates(&update).Error
 	if err != nil {
 		err = fmt.Errorf("create product error : %w", err)
 		return
@@ -122,7 +122,7 @@ func (r *productsRepository) Delete(conn *gorm.DB, where map[string]any) (err er
 		return
 	}
 
-	err = conn.Debug().Table("products").Delete(&domain.ProductData{}).Where(where).Error
+	err = conn.Debug().Table("products").Where(where).Delete(&domain.ProductData{}).Error
 	if err != nil {
 		err = fmt.Errorf("create product error : %w", err)
 		return

@@ -1,8 +1,10 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"jastip-core/application/products/repository"
+	"mime/multipart"
 
 	"github.com/alfisar/jastip-import/domain"
 	"github.com/alfisar/jastip-import/helpers/handler"
@@ -40,8 +42,19 @@ func (s *productsService) GetList(poolData *domain.Config, userID int, params do
 	return
 }
 
-func (s *productsService) Update(poolData *domain.Config, id int, userID int, update map[string]any) (err domain.ErrorData) {
-	err = updateProducts(poolData, s.repo, id, userID, update)
+func (s *productsService) Update(ctx context.Context, poolData *domain.Config, id int, userID int, update map[string]any, file *multipart.Form) (err domain.ErrorData) {
+	var (
+		fileHeader  *multipart.FileHeader
+		compressImg bytes.Buffer
+	)
+	if file != nil {
+		fileHeader, compressImg, err = validationImage(file)
+		if err.Code != 0 {
+			return
+		}
+	}
+
+	err = updateProducts(ctx, poolData, s.repo, id, userID, update, fileHeader, compressImg)
 	return
 }
 

@@ -23,6 +23,6 @@ func (r *productsRouter) productRouters(v1 fiber.Router) {
 	middleweres := setMiddleware()
 	v1.Post("/product", middleweres.Authenticate, middlewere.Validation(handler.HandlerPostProducts, helper.ValidationPostProducts), r.controller.Create)
 	v1.Get("/product", middleweres.Authenticate, middlewere.Validation(handler.HandlerParamProducts, nil), r.controller.GetList)
-	v1.Patch("/product/:id", middleweres.Authenticate, middlewere.Validation(handler.HandlerUpdate, helper.ValidationUpdateProduct), middlewere.ValidationPath(handler.HandlerPathID), r.controller.Update)
+	v1.Patch("/product/:id", middleweres.Authenticate, middlewere.Validation(handler.HandlerUpdateProducts, helper.ValidationUpdateProduct), middlewere.ValidationPath(handler.HandlerPathID), r.controller.Update)
 	v1.Delete("/product/:id", middleweres.Authenticate, middlewere.ValidationPath(handler.HandlerPathID), r.controller.Delete)
 }

@@ -4,7 +4,8 @@ import "github.com/gofiber/fiber/v2"
 
 func NewRouter() *fiber.App {
 	app := fiber.New(fiber.Config{
-		Prefork: false,
+		Prefork:   false,
+		BodyLimit: 20 * 1024 * 1024,
 	})
 
 	app.Use(func(c *fiber.Ctx) error {

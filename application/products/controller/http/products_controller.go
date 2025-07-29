@@ -63,8 +63,9 @@ func (c *productsController) Update(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("data").(float64)
 	id := ctx.Locals("path").(int)
 	updates := ctx.Locals("validatedData").(map[string]any)
+	file, _ := ctx.MultipartForm()
 
-	err := c.serv.Update(poolData, id, int(userID), updates)
+	err := c.serv.Update(ctx.Context(), poolData, id, int(userID), updates, file)
 	if err.Code != 0 {
 		response.WriteResponse(ctx, response.Response{}, err, err.HTTPCode)
 		return nil

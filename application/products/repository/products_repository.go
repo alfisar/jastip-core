@@ -86,6 +86,17 @@ func (r *productsRepository) GetList(conn *gorm.DB, param domain.Params, where m
 	return
 }
 
+func (r *productsRepository) Get(conn *gorm.DB, where map[string]any) (result domain.ProductResp, err error) {
+
+	errData := conn.Debug().Table("products").Where(where).First(&result).Error
+	if errData != nil {
+		err = fmt.Errorf("get products data error : %w", errData)
+		return
+	}
+
+	return
+}
+
 func (r *productsRepository) Update(conn *gorm.DB, update map[string]any, where map[string]any) (err error) {
 	defer func() {
 		if r := recover(); r != nil {

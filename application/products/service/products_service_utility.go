@@ -276,12 +276,27 @@ func getList(poolData *domain.Config, userID int, param domain.Params, repo repo
 	return
 }
 
-func updateProducts(poolData *domain.Config, repo repository.ProductsRepositoryContract, id int, userID int, updates map[string]any) (err domain.ErrorData) {
+func updateProducts(ctx context.Context, poolData *domain.Config, repo repository.ProductsRepositoryContract, id int, userID int, updates map[string]any, fileHeader *multipart.FileHeader, compressBuffer bytes.Buffer) (err domain.ErrorData) {
 	where := map[string]any{
 		"id":      id,
 		"user_id": userID,
 	}
-	errData := repo.Update(poolData.DBSql, updates, where)
+
+	dataProduct, errData := repo.Get(poolData.DBSql, where)
+	if errData != nil {
+		message := fmt.Sprintf("Error update data on func updateProducts : %s", errData.Error())
+		log.Println(message)
+
+		if errData.Error() == errorhandler.ErrMsgConnEmpty {
+			err = errorhandler.ErrInternal(errorhandler.ErrCodeConnection, errData)
+		} else {
+			errorhandler.ErrGetData(fmt.Errorf(message))
+		}
+		return
+	}
+
+	conn := poolData.DBSql.Begin()
+	errData = repo.Update(conn, updates, where)
 	if errData != nil {
 		message := fmt.Sprintf("Error update data on func updateProducts : %s", errData.Error())
 		log.Println(message)
@@ -291,8 +306,20 @@ func updateProducts(poolData *domain.Config, repo repository.ProductsRepositoryC
 		} else {
 			errorhandler.ErrUpdateData(fmt.Errorf(message))
 		}
+
+		conn.Rollback()
+		return
 	}
 
+	split := strings.Split(dataProduct.Image, "products/")
+
+	_, err = saveToMinio(ctx, poolData, *fileHeader, compressBuffer, "products/", split[1])
+	if err.Code != 0 {
+		conn.Rollback()
+		return
+	}
+
+	conn.Commit()
 	return
 }
 

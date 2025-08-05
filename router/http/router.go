@@ -27,5 +27,6 @@ func NewRouter() *fiber.App {
 	TravelSchInit().travelSchRouters(api)
 	CountriesInit().countriesRouters(api)
 	ProductsInit().productRouters(api)
+	ProductsTravelInit().productTravelRouters(api)
 	return app
 }

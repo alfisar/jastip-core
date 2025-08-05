@@ -84,6 +84,17 @@ func (r *travelSchRepository) GetDetail(conn *gorm.DB, where map[string]any) (re
 	return
 }
 
+func (r *travelSchRepository) Gets(conn *gorm.DB, where map[string]any) (result []domain.ProductResp, err error) {
+
+	errData := conn.Debug().Table("traveler_schedule").Where(where).Find(&result).Error
+	if errData != nil {
+		err = fmt.Errorf("get traveler schedule data error : %w", errData)
+		return
+	}
+
+	return
+}
+
 func (r *travelSchRepository) GetByTimeBetween(conn *gorm.DB, id int, startDate string, endDate string) (result domain.TravelSchResponse, err error) {
 	defer func() {
 		if r := recover(); r != nil {

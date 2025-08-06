@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/alfisar/jastip-import/domain"
@@ -84,9 +85,9 @@ func (r *travelSchRepository) GetDetail(conn *gorm.DB, where map[string]any) (re
 	return
 }
 
-func (r *travelSchRepository) Gets(conn *gorm.DB, where map[string]any) (result []domain.ProductResp, err error) {
+func (r *travelSchRepository) Gets(ctx context.Context, conn *gorm.DB, where map[string]any) (result []domain.ProductResp, err error) {
 
-	errData := conn.Debug().Table("traveler_schedule").Where(where).Find(&result).Error
+	errData := conn.WithContext(ctx).Debug().Table("traveler_schedule").Where(where).Find(&result).Error
 	if errData != nil {
 		err = fmt.Errorf("get traveler schedule data error : %w", errData)
 		return

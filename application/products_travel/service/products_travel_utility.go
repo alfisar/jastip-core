@@ -7,7 +7,6 @@ import (
 	"jastip-core/application/products_travel/repository"
 	repositoryTravel "jastip-core/application/travel_schedule/repository"
 	"log"
-	"strconv"
 	"strings"
 	"sync"
 
@@ -16,15 +15,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func makesData(products []int, idTravel int) (result []domain.ProductsTravel) {
-	for _, v := range products {
-		result = append(result, domain.ProductsTravel{
-			ProductID: v,
-			TravelID:  idTravel,
-		})
-	}
-
-	return
+type key struct {
+	ProductID int
+	TravelID  int
 }
 
 func checkData(products []int, travel []int, userID int, repoProducts repositoryProduct.ProductsRepositoryContract, repoTravel repositoryTravel.TravelSchRepositoryContract, conn *gorm.DB) (result domain.ProductsTravelRequest, err domain.ErrorData) {
@@ -32,69 +25,82 @@ func checkData(products []int, travel []int, userID int, repoProducts repository
 		wg                          sync.WaitGroup
 		travelResult, productResult []int
 	)
-
+	errChan := make(chan domain.ErrorData, 2)
 	wg.Add(2)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	// check data product
 	go func() {
 		defer wg.Done()
-		productsExist, errData := repoProducts.Gets(conn, map[string]any{
+
+		productsExist, errData := repoProducts.Gets(ctx, conn, map[string]any{
 			"user_id": userID,
 		})
 
 		if errData != nil {
-			message := fmt.Sprintf("failed Get Data product  on func checkData : %s", errData.Error())
-			log.Println(message)
+			log.Printf("failed Get Data product  on func checkData : %s \n", errData.Error())
 
-			err = errorhandler.ErrGetData(errData)
+			errChan <- errorhandler.ErrGetData(errData)
+			cancel()
 			return
 		}
 
-		mapProduct := make(map[string]bool)
+		mapProduct := make(map[int]bool)
 		if len(productsExist) > 0 {
 			for _, v := range productsExist {
-				mapProduct[strconv.Itoa(v.ID)] = true
+				mapProduct[v.ID] = true
 			}
 
 			for _, v := range products {
-				if mapProduct[strconv.Itoa(v)] {
+				if mapProduct[v] {
 					productResult = append(productResult, v)
 				}
 			}
 		}
-		return
+
 	}()
 
 	// check data travel
 	go func() {
 		defer wg.Done()
-		travelExist, errData := repoTravel.Gets(conn, map[string]any{
+
+		travelExist, errData := repoTravel.Gets(ctx, conn, map[string]any{
 			"user_id": userID,
 		})
 
 		if errData != nil {
-			message := fmt.Sprintf("failed Get Data travel on func checkData : %s", errData.Error())
-			log.Println(message)
+			log.Printf("failed Get Data travel on func checkData : %s \n", errData.Error())
 
-			err = errorhandler.ErrGetData(errData)
+			errChan <- errorhandler.ErrGetData(errData)
+			cancel()
 			return
 		}
 
-		mapTravel := make(map[string]bool)
+		mapTravel := make(map[int]bool)
 		if len(travelExist) > 0 {
 			for _, v := range travelExist {
-				mapTravel[strconv.Itoa(v.ID)] = true
+				mapTravel[v.ID] = true
 			}
 
 			for _, v := range travel {
-				if mapTravel[strconv.Itoa(v)] {
+				if mapTravel[v] {
 					travelResult = append(travelResult, v)
 				}
 			}
 		}
-		return
+
 	}()
 
 	wg.Wait()
+	close(errChan)
+	for v := range errChan {
+		if v.Code != 0 {
+			err = v
+			return
+		}
+	}
+
 	result.ProductID = productResult
 	result.TravelID = travelResult
 	return
@@ -112,53 +118,22 @@ func filteredData(ctx context.Context, conn *gorm.DB, repo repository.ProductTra
 	where := gorm.Expr(stringExpr, value...)
 	result, errData := repo.GetExpr(ctx, conn, where)
 	if errData != nil {
-		message := fmt.Sprintf("failed Get Data product Travel on func filteredData : %s", errData.Error())
-		log.Println(message)
+		log.Printf("failed Get Data product Travel on func filteredData : %s \n", errData.Error())
 
 		err = errorhandler.ErrGetData(errData)
 		return
 	}
 
-	exists := make(map[string]bool)
+	exists := make(map[key]bool)
 	for _, v := range result {
-		exists[strconv.Itoa(v.ProductID)+"-"+strconv.Itoa(v.TravelID)] = true
+		exists[key{v.ProductID, v.TravelID}] = true
 	}
 
 	for _, v := range data {
-		if !exists[strconv.Itoa(v.ProductID)+"-"+strconv.Itoa(v.TravelID)] {
+		if !exists[key{v.ProductID, v.TravelID}] {
 			filterData = append(filterData, v)
 		}
 	}
 
-	return
-}
-
-func createData(ctx context.Context, conn *gorm.DB, repo repository.ProductTravelRepositoryContract, data []domain.ProductsTravel) (err domain.ErrorData) {
-	errData := repo.CreateBulk(ctx, conn, data)
-	if errData != nil {
-		message := fmt.Sprintf("failed createData product Travel on func createData : %s", errData.Error())
-		log.Println(message)
-
-		err = errorhandler.ErrInsertData(errData)
-		return
-	}
-
-	return
-}
-
-func deleteData(ctx context.Context, conn *gorm.DB, repo repository.ProductTravelRepositoryContract, travelID int, productsID []int) (err domain.ErrorData) {
-	where := map[string]any{
-		"traveler_schedule_id": travelID,
-		"IN":                   productsID,
-	}
-
-	errData := repo.DeleteBulk(ctx, conn, where)
-	if errData != nil {
-		message := fmt.Sprintf("failed delete data product Travel on func deleteData : %s", errData.Error())
-		log.Println(message)
-
-		err = errorhandler.ErrDeleteData(errData)
-		return
-	}
 	return
 }

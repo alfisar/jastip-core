@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"sync"
@@ -97,9 +98,9 @@ func (r *productsRepository) Get(conn *gorm.DB, where map[string]any) (result do
 	return
 }
 
-func (r *productsRepository) Gets(conn *gorm.DB, where map[string]any) (result []domain.ProductResp, err error) {
+func (r *productsRepository) Gets(ctx context.Context, conn *gorm.DB, where map[string]any) (result []domain.ProductResp, err error) {
 
-	errData := conn.Debug().Table("products").Where(where).Find(&result).Error
+	errData := conn.WithContext(ctx).Debug().Table("products").Where(where).Find(&result).Error
 	if errData != nil {
 		err = fmt.Errorf("get products data error : %w", errData)
 		return

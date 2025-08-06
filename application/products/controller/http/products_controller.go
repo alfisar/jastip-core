@@ -58,6 +58,23 @@ func (c *productsController) GetList(ctx *fiber.Ctx) error {
 	return nil
 }
 
+func (c *productsController) GetListProductTravel(ctx *fiber.Ctx) error {
+	poolData := c.InitPoolData()
+	userID := ctx.Locals("data").(float64)
+	travelID := ctx.Locals("path").(int)
+	params := ctx.Locals("validatedData").(domain.Params)
+
+	totalPage, currentPage, total, limit, result, err := c.serv.GetListProductTravel(poolData, int(userID), travelID, params)
+	if err.Code != 0 {
+		response.WriteResponse(ctx, response.Response{}, err, err.HTTPCode)
+		return nil
+	}
+
+	resp := response.ResponseSuccessWithFullPaging(result, consts.SuccessGetData, totalPage, int64(currentPage), total, limit)
+	response.WriteResponse(ctx, resp, err, fiber.StatusOK)
+	return nil
+}
+
 func (c *productsController) Update(ctx *fiber.Ctx) error {
 	poolData := c.InitPoolData()
 	userID := ctx.Locals("data").(float64)

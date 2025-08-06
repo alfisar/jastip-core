@@ -42,6 +42,16 @@ func (s *productsService) GetList(poolData *domain.Config, userID int, params do
 	return
 }
 
+func (s *productsService) GetListProductTravel(poolData *domain.Config, userID int, travelID int, params domain.Params) (totalPage int, currentPage int, total int64, limit int, result []domain.ProductResp, err domain.ErrorData) {
+	result, currentPage, limit, total, err = getListProductTravel(poolData, userID, travelID, params, s.repo)
+	if err.Code != 0 {
+		return
+	}
+
+	totalPage = int(handler.CalculateTotalPages(total, int64(params.Limit)))
+	return
+}
+
 func (s *productsService) Update(ctx context.Context, poolData *domain.Config, id int, userID int, update map[string]any, file *multipart.Form) (err domain.ErrorData) {
 	var (
 		fileHeader  *multipart.FileHeader

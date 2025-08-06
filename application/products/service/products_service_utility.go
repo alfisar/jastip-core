@@ -276,6 +276,33 @@ func getList(poolData *domain.Config, userID int, param domain.Params, repo repo
 	return
 }
 
+func getListProductTravel(poolData *domain.Config, userID int, travelID int, param domain.Params, repo repository.ProductsRepositoryContract) (result []domain.ProductResp, currentPage int, limits int, total int64, err domain.ErrorData) {
+	var errData error
+	pages, offset, limit := handler.CalculateOffsetAndLimit(param.Page, param.Limit)
+
+	where := map[string]any{
+		"status":                              param.Status,
+		"user_id":                             userID,
+		"product_travel.traveler_schedule_id": travelID,
+	}
+
+	result, total, errData = repo.GetListProductTravel(poolData.DBSql, param, where, offset, limit)
+	if errData != nil {
+		message := fmt.Sprintf("Error Get List data on func getList : %s", errData.Error())
+		log.Println(message)
+
+		if errData.Error() == errorhandler.ErrMsgConnEmpty {
+			err = errorhandler.ErrInternal(errorhandler.ErrCodeConnection, errData)
+		} else {
+			err = errorhandler.ErrGetData(errData)
+		}
+		return
+	}
+	currentPage = pages
+	limits = limit
+	return
+}
+
 func updateProducts(ctx context.Context, poolData *domain.Config, repo repository.ProductsRepositoryContract, id int, userID int, updates map[string]any, fileHeader *multipart.FileHeader, compressBuffer bytes.Buffer) (err domain.ErrorData) {
 	where := map[string]any{
 		"id":      id,

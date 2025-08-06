@@ -3,8 +3,10 @@ module jastip-core
 go 1.20
 
 require (
-	github.com/alfisar/jastip-import v0.0.0-20250805085405-32582e80c060
-	github.com/gofiber/fiber/v2 v2.52.6
+	github.com/alfisar/jastip-import v0.0.0-20250806010754-a8e1538ff662
+	github.com/disintegration/imaging v1.6.2
+	github.com/gofiber/fiber/v2 v2.52.9
+	github.com/minio/minio-go/v7 v7.0.70
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/stretchr/testify v1.10.0
 	github.com/valyala/fasthttp v1.58.0
@@ -20,7 +22,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible // indirect
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
@@ -37,7 +38,6 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
-	github.com/minio/minio-go/v7 v7.0.70 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rs/xid v1.6.0 // indirect

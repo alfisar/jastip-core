@@ -42,7 +42,6 @@ func checkData(products []int, travel []int, userID int, repoProducts repository
 			log.Printf("failed Get Data product  on func checkData : %s \n", errData.Error())
 
 			errChan <- errorhandler.ErrGetData(errData)
-			cancel()
 			return
 		}
 
@@ -73,7 +72,6 @@ func checkData(products []int, travel []int, userID int, repoProducts repository
 			log.Printf("failed Get Data travel on func checkData : %s \n", errData.Error())
 
 			errChan <- errorhandler.ErrGetData(errData)
-			cancel()
 			return
 		}
 

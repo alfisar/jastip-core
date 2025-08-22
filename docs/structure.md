@@ -1,5 +1,6 @@
 .
 ├── Dockerfile
+├── README.md
 ├── application
 │   ├── countries
 │   │   ├── controller
@@ -13,6 +14,30 @@
 │   │       ├── countries_service.go
 │   │       ├── countries_service_contract.go
 │   │       └── countries_service_utility.go
+│   ├── products
+│   │   ├── controller
+│   │   │   └── http
+│   │   │       ├── products_controller.go
+│   │   │       └── products_controller_contract.go
+│   │   ├── repository
+│   │   │   ├── products_repository.go
+│   │   │   └── products_repository_contract.go
+│   │   └── service
+│   │       ├── products_service.go
+│   │       ├── products_service_contract.go
+│   │       └── products_service_utility.go
+│   ├── products_travel
+│   │   ├── controller
+│   │   │   └── http
+│   │   │       ├── products_travel_controller.go
+│   │   │       └── products_travel_controller_contract.go
+│   │   ├── repository
+│   │   │   ├── products_travel_repository.go
+│   │   │   └── products_travel_repository_contract.go
+│   │   └── service
+│   │       ├── products_travel_service.go
+│   │       ├── products_travel_service_contract.go
+│   │       └── products_travel_utility.go
 │   ├── simple
 │   │   └── controller
 │   │       ├── http
@@ -45,6 +70,8 @@
     ├── http
     │   ├── countries_router.go
     │   ├── init.go
+    │   ├── product_router.go
+    │   ├── product_travel_router.go
     │   ├── router.go
     │   ├── simple_router.go
     │   └── travel_schedule_router.go
@@ -53,4 +80,5 @@
         ├── router.go
         └── simple_router.go
 
-21 directories, 34 files
+
+31 directories, 50 files

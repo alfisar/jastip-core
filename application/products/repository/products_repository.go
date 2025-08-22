@@ -17,7 +17,7 @@ func NewProductsRepository() *productsRepository {
 	return &productsRepository{}
 }
 
-func (r *productsRepository) Create(conn *gorm.DB, data domain.ProductData) (err error) {
+func (r *productsRepository) Create(ctx context.Context, conn *gorm.DB, data domain.ProductData) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf(fmt.Sprintf("%s", r))
@@ -30,7 +30,7 @@ func (r *productsRepository) Create(conn *gorm.DB, data domain.ProductData) (err
 		return
 	}
 
-	err = conn.Debug().Table("products").Create(&data).Error
+	err = conn.WithContext(ctx).Debug().Table("products").Create(&data).Error
 	if err != nil {
 		err = fmt.Errorf("create product error : %w", err)
 		return
@@ -40,7 +40,7 @@ func (r *productsRepository) Create(conn *gorm.DB, data domain.ProductData) (err
 
 }
 
-func (r *productsRepository) GetList(conn *gorm.DB, param domain.Params, where map[string]any, offset int, limit int) (result []domain.ProductResp, total int64, err error) {
+func (r *productsRepository) GetList(ctx context.Context, conn *gorm.DB, param domain.Params, where map[string]any, offset int, limit int) (result []domain.ProductResp, total int64, err error) {
 	var wg sync.WaitGroup
 
 	errChan := make(chan error, 2)
@@ -60,7 +60,7 @@ func (r *productsRepository) GetList(conn *gorm.DB, param domain.Params, where m
 
 	go func() {
 		defer wg.Done()
-		errData := conn.Debug().Table("products").Where(where).Where("LOWER(name) like ?", "%"+strings.ToLower(param.Search)+"%").Offset(offset).Limit(limit).Find(&result).Order("name ASC").Error
+		errData := conn.WithContext(ctx).Debug().Table("products").Where(where).Where("LOWER(name) like ?", "%"+strings.ToLower(param.Search)+"%").Offset(offset).Limit(limit).Find(&result).Order("name ASC").Error
 		if errData != nil {
 			errData = fmt.Errorf("get products data error : %w", errData)
 			errChan <- errData
@@ -70,7 +70,7 @@ func (r *productsRepository) GetList(conn *gorm.DB, param domain.Params, where m
 
 	go func() {
 		defer wg.Done()
-		errData := conn.Debug().Table("products").Where(where).Where("LOWER(name) like ?", "%"+strings.ToLower(param.Search)+"%").Count(&total).Error
+		errData := conn.WithContext(ctx).Debug().Table("products").Where(where).Where("LOWER(name) like ?", "%"+strings.ToLower(param.Search)+"%").Count(&total).Error
 		if errData != nil {
 			errData = fmt.Errorf("get products count error : %w", errData)
 			errChan <- errData
@@ -87,9 +87,21 @@ func (r *productsRepository) GetList(conn *gorm.DB, param domain.Params, where m
 	return
 }
 
-func (r *productsRepository) Get(conn *gorm.DB, where map[string]any) (result domain.ProductResp, err error) {
+func (r *productsRepository) Get(ctx context.Context, conn *gorm.DB, where map[string]any) (result domain.ProductResp, err error) {
 
-	errData := conn.Debug().Table("products").Where(where).First(&result).Error
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf(fmt.Sprintf("%s", r))
+		}
+
+	}()
+
+	if conn == nil {
+		err = fmt.Errorf(errorhandler.ErrMsgConnEmpty)
+		return
+	}
+
+	errData := conn.WithContext(ctx).Debug().Table("products").Where(where).First(&result).Error
 	if errData != nil {
 		err = fmt.Errorf("get products data error : %w", errData)
 		return
@@ -100,6 +112,18 @@ func (r *productsRepository) Get(conn *gorm.DB, where map[string]any) (result do
 
 func (r *productsRepository) Gets(ctx context.Context, conn *gorm.DB, where map[string]any) (result []domain.ProductResp, err error) {
 
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf(fmt.Sprintf("%s", r))
+		}
+
+	}()
+
+	if conn == nil {
+		err = fmt.Errorf(errorhandler.ErrMsgConnEmpty)
+		return
+	}
+
 	errData := conn.WithContext(ctx).Debug().Table("products").Where(where).Find(&result).Error
 	if errData != nil {
 		err = fmt.Errorf("get products data error : %w", errData)
@@ -109,7 +133,20 @@ func (r *productsRepository) Gets(ctx context.Context, conn *gorm.DB, where map[
 	return
 }
 
-func (r *productsRepository) GetListProductTravel(conn *gorm.DB, param domain.Params, where map[string]any, offset int, limit int) (result []domain.ProductResp, total int64, err error) {
+func (r *productsRepository) GetListProductTravel(ctx context.Context, conn *gorm.DB, param domain.Params, where map[string]any, offset int, limit int) (result []domain.ProductResp, total int64, err error) {
+
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf(fmt.Sprintf("%s", r))
+		}
+
+	}()
+
+	if conn == nil {
+		err = fmt.Errorf(errorhandler.ErrMsgConnEmpty)
+		return
+	}
+
 	var wg sync.WaitGroup
 
 	errChan := make(chan error, 2)
@@ -129,7 +166,7 @@ func (r *productsRepository) GetListProductTravel(conn *gorm.DB, param domain.Pa
 
 	go func() {
 		defer wg.Done()
-		errData := conn.Debug().Table("products").Select("products.*").Joins("JOIN product_travel on product_travel.product_id = products.id").Where(where).Where("LOWER(name) like ?", "%"+strings.ToLower(param.Search)+"%").Offset(offset).Limit(limit).Find(&result).Order("name ASC").Error
+		errData := conn.WithContext(ctx).Debug().Table("products").Select("products.*").Joins("JOIN product_travel on product_travel.product_id = products.id").Where(where).Where("LOWER(name) like ?", "%"+strings.ToLower(param.Search)+"%").Offset(offset).Limit(limit).Find(&result).Order("name ASC").Error
 		if errData != nil {
 			errData = fmt.Errorf("get products data error : %w", errData)
 			errChan <- errData
@@ -139,7 +176,7 @@ func (r *productsRepository) GetListProductTravel(conn *gorm.DB, param domain.Pa
 
 	go func() {
 		defer wg.Done()
-		errData := conn.Debug().Table("products").Joins("JOIN product_travel on product_travel.product_id = products.id").Where(where).Where("LOWER(name) like ?", "%"+strings.ToLower(param.Search)+"%").Count(&total).Error
+		errData := conn.WithContext(ctx).Debug().Table("products").Joins("JOIN product_travel on product_travel.product_id = products.id").Where(where).Where("LOWER(name) like ?", "%"+strings.ToLower(param.Search)+"%").Count(&total).Error
 		if errData != nil {
 			errData = fmt.Errorf("get products count error : %w", errData)
 			errChan <- errData
@@ -156,7 +193,7 @@ func (r *productsRepository) GetListProductTravel(conn *gorm.DB, param domain.Pa
 	return
 }
 
-func (r *productsRepository) Update(conn *gorm.DB, update map[string]any, where map[string]any) (err error) {
+func (r *productsRepository) Update(ctx context.Context, conn *gorm.DB, update map[string]any, where map[string]any) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf(fmt.Sprintf("%s", r))
@@ -169,7 +206,7 @@ func (r *productsRepository) Update(conn *gorm.DB, update map[string]any, where 
 		return
 	}
 
-	err = conn.Debug().Table("products").Where(where).Updates(&update).Error
+	err = conn.WithContext(ctx).Debug().Table("products").Where(where).Updates(&update).Error
 	if err != nil {
 		err = fmt.Errorf("create product error : %w", err)
 		return
@@ -179,7 +216,7 @@ func (r *productsRepository) Update(conn *gorm.DB, update map[string]any, where 
 
 }
 
-func (r *productsRepository) Delete(conn *gorm.DB, where map[string]any) (err error) {
+func (r *productsRepository) Delete(ctx context.Context, conn *gorm.DB, where map[string]any) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf(fmt.Sprintf("%s", r))
@@ -192,7 +229,7 @@ func (r *productsRepository) Delete(conn *gorm.DB, where map[string]any) (err er
 		return
 	}
 
-	err = conn.Debug().Table("products").Where(where).Delete(&domain.ProductData{}).Error
+	err = conn.WithContext(ctx).Debug().Table("products").Where(where).Delete(&domain.ProductData{}).Error
 	if err != nil {
 		err = fmt.Errorf("create product error : %w", err)
 		return

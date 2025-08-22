@@ -2,6 +2,7 @@ package router
 
 import (
 	countriesControll "jastip-core/application/countries/controller/http"
+	orderControll "jastip-core/application/order/controller/http"
 	productsControll "jastip-core/application/products/controller/http"
 	productTravelControll "jastip-core/application/products_travel/controller/http"
 	simpleControll "jastip-core/application/simple/controller/http"
@@ -20,6 +21,16 @@ import (
 	productsTravelServ "jastip-core/application/products_travel/service"
 	"os"
 
+	addrOrderRepo "jastip-core/application/address_order/repository"
+	orderRepo "jastip-core/application/order/repository"
+	orderServ "jastip-core/application/order/service"
+	orderDetailRepo "jastip-core/application/order_detail/repository"
+
+	"github.com/alfisar/jastip-import/domain"
+	pb "github.com/alfisar/jastip-import/proto/auth"
+	clientAuth "github.com/alfisar/jastip-import/proto/auth/client"
+
+	"github.com/alfisar/jastip-import/helpers/consts"
 	"github.com/alfisar/jastip-import/helpers/jwthandler"
 	"github.com/alfisar/jastip-import/helpers/middlewere"
 )
@@ -63,6 +74,25 @@ func ProductsTravelInit() *productsTravelRouter {
 
 	controll := productTravelControll.NewProductsTravelController(servProductTravel)
 	return NewProductTravelRouter(controll)
+}
+
+func OrderInit() *orderRouter {
+	repoProduct := productsRepo.NewProductsRepository()
+	repoTravel := travelRepo.NewTravelSchRepository()
+	repoAddrOrder := addrOrderRepo.NewAddressOrderRepository()
+	repoOrderDetail := orderDetailRepo.NewOrderDetailsRepository()
+	repoOrder := orderRepo.NewOrderRepository()
+	productstravelRepo := productsTravelRepo.NewProductTravelrepository()
+
+	poolData := domain.DataPool.Get().(*domain.Config)
+	connAuthClient := poolData.GRPC[consts.GrpcAuth]
+	profileClient := pb.NewProfileClient(connAuthClient)
+	clientAuths := clientAuth.NewAuthClient(profileClient)
+
+	servOrder := orderServ.NewOrderService(repoOrder, repoOrderDetail, repoAddrOrder, repoProduct, productstravelRepo, repoTravel, clientAuths)
+
+	controll := orderControll.NewOrderService(servOrder)
+	return NewOrderRouter(controll)
 }
 
 func setMiddleware() *middlewere.AuthenticateMiddleware {

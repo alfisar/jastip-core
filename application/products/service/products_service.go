@@ -32,8 +32,8 @@ func (s *productsService) Create(ctx context.Context, poolData *domain.Config, d
 	return
 }
 
-func (s *productsService) GetList(poolData *domain.Config, userID int, params domain.Params) (totalPage int, currentPage int, total int64, limit int, result []domain.ProductResp, err domain.ErrorData) {
-	result, currentPage, limit, total, err = getList(poolData, userID, params, s.repo)
+func (s *productsService) GetList(ctx context.Context, poolData *domain.Config, userID int, params domain.Params) (totalPage int, currentPage int, total int64, limit int, result []domain.ProductResp, err domain.ErrorData) {
+	result, currentPage, limit, total, err = getList(ctx, poolData, userID, params, s.repo)
 	if err.Code != 0 {
 		return
 	}
@@ -42,8 +42,8 @@ func (s *productsService) GetList(poolData *domain.Config, userID int, params do
 	return
 }
 
-func (s *productsService) GetListProductTravel(poolData *domain.Config, userID int, travelID int, params domain.Params) (totalPage int, currentPage int, total int64, limit int, result []domain.ProductResp, err domain.ErrorData) {
-	result, currentPage, limit, total, err = getListProductTravel(poolData, userID, travelID, params, s.repo)
+func (s *productsService) GetListProductTravel(ctx context.Context, poolData *domain.Config, userID int, travelID int, params domain.Params) (totalPage int, currentPage int, total int64, limit int, result []domain.ProductResp, err domain.ErrorData) {
+	result, currentPage, limit, total, err = getListProductTravel(ctx, poolData, userID, travelID, params, s.repo)
 	if err.Code != 0 {
 		return
 	}
@@ -68,7 +68,7 @@ func (s *productsService) Update(ctx context.Context, poolData *domain.Config, i
 	return
 }
 
-func (s *productsService) Delete(poolData *domain.Config, id int, userId int) (err domain.ErrorData) {
-	err = deleteProducts(poolData, s.repo, id, userId)
+func (s *productsService) Delete(ctx context.Context, poolData *domain.Config, id int, userId int) (err domain.ErrorData) {
+	err = deleteProducts(ctx, poolData, s.repo, id, userId)
 	return
 }

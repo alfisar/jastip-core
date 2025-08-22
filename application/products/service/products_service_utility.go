@@ -232,7 +232,7 @@ func saveProduct(ctx context.Context, poolData *domain.Config, fileHeader multip
 	conn := poolData.DBSql.Begin()
 
 	data.Status = 1
-	errData := repo.Create(conn, data)
+	errData := repo.Create(ctx, conn, data)
 	if errData != nil {
 		message := fmt.Sprintf("failed createndata product on func saveProduct : %s", errData.Error())
 		log.Println(message)
@@ -250,7 +250,7 @@ func saveProduct(ctx context.Context, poolData *domain.Config, fileHeader multip
 	return
 }
 
-func getList(poolData *domain.Config, userID int, param domain.Params, repo repository.ProductsRepositoryContract) (result []domain.ProductResp, currentPage int, limits int, total int64, err domain.ErrorData) {
+func getList(ctx context.Context, poolData *domain.Config, userID int, param domain.Params, repo repository.ProductsRepositoryContract) (result []domain.ProductResp, currentPage int, limits int, total int64, err domain.ErrorData) {
 	var errData error
 	pages, offset, limit := handler.CalculateOffsetAndLimit(param.Page, param.Limit)
 
@@ -259,7 +259,7 @@ func getList(poolData *domain.Config, userID int, param domain.Params, repo repo
 		"user_id": userID,
 	}
 
-	result, total, errData = repo.GetList(poolData.DBSql, param, where, offset, limit)
+	result, total, errData = repo.GetList(ctx, poolData.DBSql, param, where, offset, limit)
 	if errData != nil {
 		message := fmt.Sprintf("Error Get List data on func getList : %s", errData.Error())
 		log.Println(message)
@@ -276,7 +276,7 @@ func getList(poolData *domain.Config, userID int, param domain.Params, repo repo
 	return
 }
 
-func getListProductTravel(poolData *domain.Config, userID int, travelID int, param domain.Params, repo repository.ProductsRepositoryContract) (result []domain.ProductResp, currentPage int, limits int, total int64, err domain.ErrorData) {
+func getListProductTravel(ctx context.Context, poolData *domain.Config, userID int, travelID int, param domain.Params, repo repository.ProductsRepositoryContract) (result []domain.ProductResp, currentPage int, limits int, total int64, err domain.ErrorData) {
 	var errData error
 	pages, offset, limit := handler.CalculateOffsetAndLimit(param.Page, param.Limit)
 
@@ -286,7 +286,7 @@ func getListProductTravel(poolData *domain.Config, userID int, travelID int, par
 		"product_travel.traveler_schedule_id": travelID,
 	}
 
-	result, total, errData = repo.GetListProductTravel(poolData.DBSql, param, where, offset, limit)
+	result, total, errData = repo.GetListProductTravel(ctx, poolData.DBSql, param, where, offset, limit)
 	if errData != nil {
 		message := fmt.Sprintf("Error Get List data on func getList : %s", errData.Error())
 		log.Println(message)
@@ -309,7 +309,7 @@ func updateProducts(ctx context.Context, poolData *domain.Config, repo repositor
 		"user_id": userID,
 	}
 
-	dataProduct, errData := repo.Get(poolData.DBSql, where)
+	dataProduct, errData := repo.Get(ctx, poolData.DBSql, where)
 	if errData != nil {
 		message := fmt.Sprintf("Error update data on func updateProducts : %s", errData.Error())
 		log.Println(message)
@@ -323,7 +323,7 @@ func updateProducts(ctx context.Context, poolData *domain.Config, repo repositor
 	}
 
 	conn := poolData.DBSql.Begin()
-	errData = repo.Update(conn, updates, where)
+	errData = repo.Update(ctx, conn, updates, where)
 	if errData != nil {
 		message := fmt.Sprintf("Error update data on func updateProducts : %s", errData.Error())
 		log.Println(message)
@@ -350,14 +350,14 @@ func updateProducts(ctx context.Context, poolData *domain.Config, repo repositor
 	return
 }
 
-func deleteProducts(poolData *domain.Config, repo repository.ProductsRepositoryContract, id int, userID int) (err domain.ErrorData) {
+func deleteProducts(ctx context.Context, poolData *domain.Config, repo repository.ProductsRepositoryContract, id int, userID int) (err domain.ErrorData) {
 
 	where := map[string]any{
 		"id":      id,
 		"user_id": userID,
 	}
 
-	errData := repo.Delete(poolData.DBSql, where)
+	errData := repo.Delete(ctx, poolData.DBSql, where)
 	if errData != nil {
 		message := fmt.Sprintf("Error delete data on func deleteProducts : %s", errData.Error())
 		log.Println(message)

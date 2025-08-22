@@ -47,7 +47,7 @@ func (c *productsController) GetList(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("data").(float64)
 	params := ctx.Locals("validatedData").(domain.Params)
 
-	totalPage, currentPage, total, limit, result, err := c.serv.GetList(poolData, int(userID), params)
+	totalPage, currentPage, total, limit, result, err := c.serv.GetList(ctx.Context(), poolData, int(userID), params)
 	if err.Code != 0 {
 		response.WriteResponse(ctx, response.Response{}, err, err.HTTPCode)
 		return nil
@@ -64,7 +64,7 @@ func (c *productsController) GetListProductTravel(ctx *fiber.Ctx) error {
 	travelID := ctx.Locals("path").(int)
 	params := ctx.Locals("validatedData").(domain.Params)
 
-	totalPage, currentPage, total, limit, result, err := c.serv.GetListProductTravel(poolData, int(userID), travelID, params)
+	totalPage, currentPage, total, limit, result, err := c.serv.GetListProductTravel(ctx.Context(), poolData, int(userID), travelID, params)
 	if err.Code != 0 {
 		response.WriteResponse(ctx, response.Response{}, err, err.HTTPCode)
 		return nil
@@ -98,7 +98,7 @@ func (c *productsController) Delete(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("data").(float64)
 	id := ctx.Locals("path").(int)
 
-	err := c.serv.Delete(poolData, id, int(userID))
+	err := c.serv.Delete(ctx.Context(), poolData, id, int(userID))
 	if err.Code != 0 {
 		response.WriteResponse(ctx, response.Response{}, err, err.HTTPCode)
 		return nil

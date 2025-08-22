@@ -161,8 +161,8 @@ func getDetail(poolData *domain.Config, repo repository.TravelSchRepositoryContr
 	var errData error
 
 	where := map[string]any{
-		"id":      id,
-		"user_id": userID,
+		"traveler_schedule.id": id,
+		"user_id":              userID,
 	}
 
 	result, errData = repo.GetDetail(poolData.DBSql, where)

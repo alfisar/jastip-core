@@ -3,7 +3,7 @@ module jastip-core
 go 1.20
 
 require (
-	github.com/alfisar/jastip-import v0.0.0-20250806010754-a8e1538ff662
+	github.com/alfisar/jastip-import v0.0.0-20250822091441-e09345a25269
 	github.com/disintegration/imaging v1.6.2
 	github.com/gofiber/fiber/v2 v2.52.9
 	github.com/minio/minio-go/v7 v7.0.70
